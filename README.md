@@ -14,8 +14,9 @@ This is a multi-user blogging platform built with Next.js 15, tRPC, Drizzle ORM,
 - Blog post CRUD with published/draft
 - Category CRUD
 - Assign multiple categories to posts
-- Listing with category filter
+- Listing with category filter and search
 - Individual post pages (`/posts/[slug]`)
+- Dashboard for managing posts
 - Basic responsive navigation
 
 ### Project Structure
@@ -51,7 +52,12 @@ Use Neon or Supabase for quick Postgres.
 npm run db:push
 ```
 
-4. Start dev server:
+4. (Optional) Seed sample data:
+```bash
+npm run db:seed
+```
+
+5. Start dev server:
 ```bash
 npm run dev
 ```
@@ -59,12 +65,12 @@ npm run dev
 Open `http://localhost:3000`.
 
 ### Seeding (optional)
-Use the UI at `/categories` to create categories, then create posts on the home page.
+You can also seed via UI: create categories at `/categories`, then create posts on the home page.
 
 ### Deployment
 Deploy to Vercel. Ensure `DATABASE_URL` is set in Project Settings → Environment Variables. Drizzle migrations can be run locally and the generated SQL committed, or run via a one-off script using `npm run db:push` against the production database.
 
 ### Trade-offs & Notes
-- Markdown editor omitted for speed; using simple textarea.
+- Markdown editing with preview via `react-markdown` + GFM.
 - No authentication by design per brief.
 - Server components call tRPC via client boundary on detail page for simplicity.

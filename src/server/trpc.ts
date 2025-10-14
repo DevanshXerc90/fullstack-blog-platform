@@ -2,9 +2,12 @@
   * Yeh tRPC ke liye main server setup file hai.
   */
 import { initTRPC } from '@trpc/server';
+import superjson from 'superjson';
 
 // 1. tRPC instance banayein
-const t = initTRPC.create();
+const t = initTRPC.create({
+  transformer: superjson,
+});
 
 // 2. Apne procedures aur router ko dobara use karne ke liye export karein
 export const router = t.router;

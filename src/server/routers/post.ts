@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { db } from '@/db';
 import { posts, postsToCategories } from '@/db/schema';
-import { and, desc, eq } from 'drizzle-orm';
-import { createPostSchema, getPostBySlugSchema, listPostsSchema, updatePostSchema } from '@/schemas/post';
+import { and, desc, eq, like } from 'drizzle-orm';
+import { createPostSchema, getPostBySlugSchema, getPostByIdSchema, listPostsSchema, updatePostSchema } from '@/schemas/post';
 
 
 export const postRouter = router({
@@ -32,8 +32,18 @@ export const postRouter = router({
         }
 
         const base = db.select().from(posts);
-        if (input?.publishedOnly) {
+        const hasPublished = Boolean(input?.publishedOnly);
+        const hasQuery = Boolean(input?.query);
+        if (hasPublished && hasQuery) {
+            return base
+                .where(and(eq(posts.published, true), like(posts.title, `%${input!.query!}%`)))
+                .orderBy(desc(posts.createdAt));
+        }
+        if (hasPublished) {
             return base.where(eq(posts.published, true)).orderBy(desc(posts.createdAt));
+        }
+        if (hasQuery) {
+            return base.where(like(posts.title, `%${input!.query!}%`)).orderBy(desc(posts.createdAt));
         }
         return base.orderBy(desc(posts.createdAt));
     }),
@@ -113,6 +123,21 @@ export const postRouter = router({
     getBySlug: publicProcedure.input(getPostBySlugSchema).query(async ({ input }) => {
         const rows = await db.select().from(posts).where(eq(posts.slug, input.slug)).limit(1);
         return rows[0] ?? null;
+    }),
+
+    // GET: Post by id (for editing)
+    getById: publicProcedure.input(getPostByIdSchema).query(async ({ input }) => {
+        const rows = await db.select().from(posts).where(eq(posts.id, input.id)).limit(1);
+        return rows[0] ?? null;
+    }),
+
+    // GET: Category IDs for a post (for editing form defaults)
+    getCategoryIdsByPostId: publicProcedure.input(getPostByIdSchema).query(async ({ input }) => {
+        const rows = await db
+            .select({ categoryId: postsToCategories.categoryId })
+            .from(postsToCategories)
+            .where(eq(postsToCategories.postId, input.id));
+        return rows.map((r) => r.categoryId);
     }),
 });
 

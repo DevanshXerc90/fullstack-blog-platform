@@ -8,13 +8,54 @@ export default function CategoriesPage() {
   const { data: categories, isLoading, error } = trpc.category.list.useQuery();
 
   const createMutation = trpc.category.create.useMutation({
-    onSuccess: () => utils.category.list.invalidate(),
+    onMutate: async (input) => {
+      await utils.category.list.cancel();
+      const previous = utils.category.list.getData();
+      const temp = {
+        id: Math.floor(-Math.random() * 1_000_000),
+        name: input.name,
+        description: input.description ?? null,
+        slug: input.name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .slice(0, 60),
+      };
+      utils.category.list.setData(undefined, (old) => (old ? [...old, temp] : [temp]));
+      return { previous };
+    },
+    onError: (_err, _input, ctx) => {
+      if (ctx?.previous) utils.category.list.setData(undefined, ctx.previous);
+    },
+    onSettled: () => utils.category.list.invalidate(),
   });
   const updateMutation = trpc.category.update.useMutation({
-    onSuccess: () => utils.category.list.invalidate(),
+    onMutate: async (input) => {
+      await utils.category.list.cancel();
+      const previous = utils.category.list.getData();
+      utils.category.list.setData(undefined, (old) =>
+        old?.map((c) => (c.id === input.id ? { ...c, name: input.name ?? c.name, description: input.description ?? c.description } : c)) ?? []
+      );
+      return { previous };
+    },
+    onError: (_err, _input, ctx) => {
+      if (ctx?.previous) utils.category.list.setData(undefined, ctx.previous);
+    },
+    onSettled: () => utils.category.list.invalidate(),
   });
   const deleteMutation = trpc.category.delete.useMutation({
-    onSuccess: () => utils.category.list.invalidate(),
+    onMutate: async (input) => {
+      await utils.category.list.cancel();
+      const previous = utils.category.list.getData();
+      utils.category.list.setData(undefined, (old) => old?.filter((c) => c.id !== input.id) ?? []);
+      return { previous };
+    },
+    onError: (_err, _input, ctx) => {
+      if (ctx?.previous) utils.category.list.setData(undefined, ctx.previous);
+    },
+    onSettled: () => utils.category.list.invalidate(),
   });
 
   const [name, setName] = useState("");

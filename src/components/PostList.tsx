@@ -2,11 +2,13 @@
 
 import { trpc } from "@/lib/trpc/client";
 import Link from "next/link";
+import { useState } from "react";
 import React from "react";
 
 export default function PostList() {
     // Humara tRPC hook! Yeh automatically data fetch karta hai.
-    const { data: posts, isLoading, error } = trpc.post.getAllPosts.useQuery({ publishedOnly: true });
+    const [query, setQuery] = useState("");
+    const { data: posts, isLoading, error } = trpc.post.getAllPosts.useQuery({ publishedOnly: true, query });
 
     // Loading state handle karein
     if (isLoading) {
@@ -26,6 +28,14 @@ export default function PostList() {
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-3xl font-bold mb-4">All Blog Posts</h1>
+            <div className="mb-4">
+                <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search posts by title..."
+                    className="w-full max-w-md border rounded px-3 py-2"
+                />
+            </div>
             {posts && posts.length > 0 ? (
                 <ul className="space-y-2">
                     {posts.map((post) => (
