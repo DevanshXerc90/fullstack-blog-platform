@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Provider from "@/lib/trpc/Provider"; // Our tRPC Provider
+// Path ko theek kiya gaya hai
+import Provider from "@/lib/trpc/Provider";
 
 // GeistSans is preconfigured and exposes a `.variable` className
-
-// Geist Mono ko abhi ke liye hata dete hain agar use nahi ho raha
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const inter = Inter({
+    variable: "--font-inter",
+    subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
     title: "Full-Stack Blog Platform",
@@ -24,6 +24,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${GeistSans.variable} font-sans antialiased`}>
+            <body className={`${inter.variable} font-sans antialiased`}>
                 <Provider>{children}</Provider>
             </body>
         </html>
