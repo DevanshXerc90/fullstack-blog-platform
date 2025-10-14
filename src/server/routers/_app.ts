@@ -1,10 +1,10 @@
 import { router } from '../trpc';
 import { postRouter } from './post';
-// Yahan hum future mein categoryRouter bhi add karenge
+import { categoryRouter } from './category';
 
 export const appRouter = router({
     post: postRouter,
-    // category: categoryRouter,
+    category: categoryRouter,
 });
 
 // Is type ko hum client-side par use karenge

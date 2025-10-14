@@ -23,8 +23,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${GeistSans.variable} font-sans antialiased`}>
-            <body className={`${inter.variable} font-sans antialiased`}>
+            <body className={`${GeistSans.variable} ${inter.variable} font-sans antialiased`}>
                 <Provider>{children}</Provider>
             </body>
         </html>

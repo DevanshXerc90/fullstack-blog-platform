@@ -1,16 +1,41 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { db } from '@/db';
-import { posts } from '@/db/schema';
-import { eq, desc } from 'drizzle-orm'; // Zaroori functions import kiye
-import { createPostSchema, updatePostSchema } from '@/schemas/post';
+import { posts, postsToCategories } from '@/db/schema';
+import { and, desc, eq } from 'drizzle-orm';
+import { createPostSchema, getPostBySlugSchema, listPostsSchema, updatePostSchema } from '@/schemas/post';
 
 
 export const postRouter = router({
-    // READ: Saare posts fetch karne ke liye
-    getAllPosts: publicProcedure.query(async () => {
-        // Improvement: Naye posts ab sabse upar dikhenge
-        return db.select().from(posts).orderBy(desc(posts.createdAt));
+    // READ: Saare posts fetch karne ke liye, optional filter ke saath
+    getAllPosts: publicProcedure.input(listPostsSchema.optional()).query(async ({ input }) => {
+        if (input?.categoryId) {
+            const whereExpr = input.publishedOnly
+                ? and(eq(postsToCategories.categoryId, input.categoryId), eq(posts.published, true))
+                : eq(postsToCategories.categoryId, input.categoryId);
+
+            const rows = await db
+                .select({
+                    id: posts.id,
+                    title: posts.title,
+                    slug: posts.slug,
+                    content: posts.content,
+                    published: posts.published,
+                    createdAt: posts.createdAt,
+                    updatedAt: posts.updatedAt,
+                })
+                .from(posts)
+                .innerJoin(postsToCategories, eq(postsToCategories.postId, posts.id))
+                .where(whereExpr)
+                .orderBy(desc(posts.createdAt));
+            return rows;
+        }
+
+        const base = db.select().from(posts);
+        if (input?.publishedOnly) {
+            return base.where(eq(posts.published, true)).orderBy(desc(posts.createdAt));
+        }
+        return base.orderBy(desc(posts.createdAt));
     }),
 
     // CREATE: Naya post banane ke liye
@@ -25,8 +50,15 @@ export const postRouter = router({
                     title: input.title,
                     content: input.content,
                     slug: slug,
+                    published: input.published ?? false,
                 })
                 .returning();
+
+            if (input.categoryIds && input.categoryIds.length > 0) {
+                await db.insert(postsToCategories).values(
+                    input.categoryIds.map((categoryId) => ({ postId: newPost.id, categoryId }))
+                );
+            }
 
             return newPost;
         }),
@@ -35,7 +67,7 @@ export const postRouter = router({
     updatePost: publicProcedure
         .input(updatePostSchema)
         .mutation(async ({ input }) => {
-            const { id, ...updateData } = input;
+            const { id, categoryIds, ...updateData } = input;
 
             // Agar title badla hai, toh slug bhi update hoga
             const newSlug = updateData.title
@@ -47,10 +79,20 @@ export const postRouter = router({
                 .set({
                     ...updateData,
                     slug: newSlug,
-                    updatedAt: new Date(), // "Updated At" time ko manually set kiya
+                    updatedAt: new Date(),
                 })
                 .where(eq(posts.id, id))
                 .returning();
+
+            if (Array.isArray(categoryIds)) {
+                // Replace categories: delete existing then insert
+                await db.delete(postsToCategories).where(eq(postsToCategories.postId, id));
+                if (categoryIds.length > 0) {
+                    await db.insert(postsToCategories).values(
+                        categoryIds.map((categoryId) => ({ postId: id, categoryId }))
+                    );
+                }
+            }
 
             return updatedPost;
         }),
@@ -66,5 +108,11 @@ export const postRouter = router({
 
             return deletedPost;
         }),
+
+    // GET: Post by slug
+    getBySlug: publicProcedure.input(getPostBySlugSchema).query(async ({ input }) => {
+        const rows = await db.select().from(posts).where(eq(posts.slug, input.slug)).limit(1);
+        return rows[0] ?? null;
+    }),
 });
 

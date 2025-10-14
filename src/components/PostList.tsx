@@ -1,11 +1,12 @@
 "use client"; // Yeh component client-side par chalega
 
 import { trpc } from "@/lib/trpc/client";
+import Link from "next/link";
 import React from "react";
 
 export default function PostList() {
     // Humara tRPC hook! Yeh automatically data fetch karta hai.
-    const { data: posts, isLoading, error } = trpc.post.getAllPosts.useQuery();
+    const { data: posts, isLoading, error } = trpc.post.getAllPosts.useQuery({ publishedOnly: true });
 
     // Loading state handle karein
     if (isLoading) {
@@ -29,7 +30,11 @@ export default function PostList() {
                 <ul className="space-y-2">
                     {posts.map((post) => (
                         <li key={post.id} className="p-4 border rounded-md shadow-sm">
-                            <h2 className="text-xl font-semibold">{post.title}</h2>
+                            <h2 className="text-xl font-semibold">
+                                <Link href={`/posts/${post.slug}`} className="hover:underline">
+                                    {post.title}
+                                </Link>
+                            </h2>
                             <p className="text-gray-600 mt-2">{post.content}</p>
                         </li>
                     ))}
