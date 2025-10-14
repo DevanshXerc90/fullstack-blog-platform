@@ -18,7 +18,9 @@ export const updatePostSchema = z.object({
 });
 
 export const getPostBySlugSchema = z.object({ slug: z.string().min(1) });
+export const getPostByIdSchema = z.object({ id: z.number() });
 export const listPostsSchema = z.object({
   categoryId: z.number().optional(),
   publishedOnly: z.boolean().optional(),
+  query: z.string().min(1).optional(),
 });

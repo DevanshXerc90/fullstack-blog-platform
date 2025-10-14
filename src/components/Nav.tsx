@@ -8,6 +8,7 @@ export function Nav() {
       <div className="space-x-4">
         <Link href="/posts" className="hover:underline">All Posts</Link>
         <Link href="/categories" className="hover:underline">Categories</Link>
+        <Link href="/dashboard" className="hover:underline">Dashboard</Link>
       </div>
     </nav>
   );

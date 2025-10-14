@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { trpc } from "@/lib/trpc/client";
 import { createPostSchema } from "@/schemas/post";
 import { cn } from "@/lib/utils";
@@ -55,6 +57,7 @@ export default function CreatePostForm() {
         createPostMutation.mutate(values);
     }
 
+    const contentValue = form.watch("content");
     return (
         <div className="container max-w-xl mx-auto p-4 bg-white border rounded-md shadow-sm mb-8">
             <h2 className="text-2xl font-bold mb-4">Create a New Post</h2>
@@ -91,6 +94,14 @@ export default function CreatePostForm() {
                             </FormItem>
                         )}
                     />
+                    {contentValue && contentValue.length > 0 && (
+                        <div>
+                            <div className="text-sm font-medium mb-2">Preview</div>
+                            <div className="prose border rounded-md p-3">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{contentValue}</ReactMarkdown>
+                            </div>
+                        </div>
+                    )}
                     <CategoriesSelector control={form.control} />
                     <FormField
                         control={form.control}
