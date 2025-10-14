@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Full-Stack Blogging Platform
 
-## Getting Started
+This is a multi-user blogging platform built with Next.js 15, tRPC, Drizzle ORM, and PostgreSQL. It implements core blog features with categories, CRUD, filtering, and a clean responsive UI.
 
-First, run the development server:
+### Tech Stack
+- Next.js 15 (App Router)
+- tRPC v11 (+ React Query integration)
+- Drizzle ORM + PostgreSQL (Neon/Supabase/Postgres)
+- Zod for validation
+- Tailwind CSS v4
+- Zustand (global state for filters)
 
+### Features
+- Blog post CRUD with published/draft
+- Category CRUD
+- Assign multiple categories to posts
+- Listing with category filter
+- Individual post pages (`/posts/[slug]`)
+- Basic responsive navigation
+
+### Project Structure
+- `src/server/routers` – tRPC routers (`post`, `category`, `_app`)
+- `src/db` – Drizzle schema and migrator
+- `src/app` – App Router pages, API route for tRPC
+- `src/components` – UI and composite components
+- `src/schemas` – Zod schemas shared across the stack
+
+### tRPC Router Structure
+- `post`:
+  - `getAllPosts` (optional `categoryId`, `publishedOnly`)
+  - `getBySlug` (`slug`)
+  - `createPost`, `updatePost`, `deletePost`
+- `category`:
+  - `list`, `getBySlug`
+  - `create`, `update`, `delete`
+
+### Setup
+1. Install deps:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+```
+2. Setup environment:
+Create `.env` with:
+```bash
+DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB
+```
+Use Neon or Supabase for quick Postgres.
+
+3. Run migrations:
+```bash
+npm run db:push
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Start dev server:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Seeding (optional)
+Use the UI at `/categories` to create categories, then create posts on the home page.
 
-## Learn More
+### Deployment
+Deploy to Vercel. Ensure `DATABASE_URL` is set in Project Settings → Environment Variables. Drizzle migrations can be run locally and the generated SQL committed, or run via a one-off script using `npm run db:push` against the production database.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Trade-offs & Notes
+- Markdown editor omitted for speed; using simple textarea.
+- No authentication by design per brief.
+- Server components call tRPC via client boundary on detail page for simplicity.

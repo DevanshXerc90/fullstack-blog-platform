@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc/client";
 import { createPostSchema } from "@/schemas/post";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function CreatePostForm() {
@@ -44,6 +45,8 @@ export default function CreatePostForm() {
         defaultValues: {
             title: "",
             content: "",
+            published: false,
+            categoryIds: [],
         },
     });
 
@@ -88,12 +91,89 @@ export default function CreatePostForm() {
                             </FormItem>
                         )}
                     />
+                    <CategoriesSelector control={form.control} />
+                    <FormField
+                        control={form.control}
+                        name="published"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Published</FormLabel>
+                                </div>
+                                <FormControl>
+                                    <input
+                                        type="checkbox"
+                                        className="h-4 w-4"
+                                        checked={field.value}
+                                        onChange={(e) => field.onChange(e.target.checked)}
+                                    />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
                     <Button type="submit" disabled={createPostMutation.isPending}>
                         {createPostMutation.isPending ? "Creating..." : "Create Post"}
                     </Button>
                 </form>
             </Form>
         </div>
+    );
+}
+
+import type { Control } from "react-hook-form";
+
+function CategoriesSelector({ control }: { control: Control<import("zod").infer<typeof createPostSchema>> }) {
+    const { data: categories, isLoading } = trpc.category.list.useQuery();
+    return (
+        <FormField
+            control={control}
+            name="categoryIds"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Categories</FormLabel>
+                    <FormControl>
+                        <div className="flex flex-wrap gap-2">
+                            {isLoading && <span className="text-sm text-muted-foreground">Loading categories...</span>}
+                            {!isLoading && categories && categories.length === 0 && (
+                                <span className="text-sm text-muted-foreground">No categories yet</span>
+                            )}
+                            {!isLoading && categories && categories.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {categories.map((cat) => {
+                                        const checked = Array.isArray(field.value) && field.value.includes(cat.id);
+                                        return (
+                                            <label
+                                                key={cat.id}
+                                                className={cn(
+                                                    "cursor-pointer select-none rounded border px-2 py-1 text-sm",
+                                                    checked ? "bg-secondary" : "bg-background"
+                                                )}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    className="mr-2"
+                                                    checked={checked}
+                                                    onChange={(e) => {
+                                                        const current: number[] = Array.isArray(field.value) ? field.value : [];
+                                                        if (e.target.checked) {
+                                                            field.onChange([...current, cat.id]);
+                                                        } else {
+                                                            field.onChange(current.filter((id) => id !== cat.id));
+                                                        }
+                                                    }}
+                                                />
+                                                {cat.name}
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
     );
 }
 
