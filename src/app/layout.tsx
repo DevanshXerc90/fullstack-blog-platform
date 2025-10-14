@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
 import { Inter } from "next/font/google";
 import "./globals.css";
 // Path ko theek kiya gaya hai
 import Provider from "@/lib/trpc/Provider";
 
+// GeistSans is preconfigured and exposes a `.variable` className
 const inter = Inter({
     variable: "--font-inter",
     subsets: ["latin"],
@@ -21,6 +23,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
+            <body className={`${GeistSans.variable} font-sans antialiased`}>
             <body className={`${inter.variable} font-sans antialiased`}>
                 <Provider>{children}</Provider>
             </body>
