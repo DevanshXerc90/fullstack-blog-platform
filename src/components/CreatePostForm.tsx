@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc/client";
-import { createPostSchema } from "@/server/routers/post";
+import { createPostSchema } from "@/schemas/post";
 import { toast } from "sonner";
 
 export default function CreatePostForm() {
