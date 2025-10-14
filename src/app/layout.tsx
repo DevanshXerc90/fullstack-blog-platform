@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 // Path ko theek kiya gaya hai
-import Provider from "../../src/lib/trpc/Provider";
+import Provider from "@/lib/trpc/Provider";
 
 const inter = Inter({
     variable: "--font-inter",

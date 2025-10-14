@@ -3,21 +3,7 @@ import { router, publicProcedure } from '../trpc';
 import { db } from '@/db';
 import { posts } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm'; // Zaroori functions import kiye
-
-// --- Zod Schemas for Validation ---
-
-// Naye post ke liye validation schema
-export const createPostSchema = z.object({
-    title: z.string().min(3, "Title kam se kam 3 characters ka hona chahiye"),
-    content: z.string().min(10, "Content kam se kam 10 characters ka hona chahiye"),
-});
-
-// Post update karne ke liye schema (sab kuch optional hai)
-export const updatePostSchema = z.object({
-    id: z.number(),
-    title: z.string().min(3).optional(),
-    content: z.string().min(10).optional(),
-});
+import { createPostSchema, updatePostSchema } from '@/schemas/post';
 
 
 export const postRouter = router({
