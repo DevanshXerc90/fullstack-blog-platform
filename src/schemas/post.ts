@@ -23,4 +23,7 @@ export const listPostsSchema = z.object({
   categoryId: z.number().optional(),
   publishedOnly: z.boolean().optional(),
   query: z.string().min(1).optional(),
+  // Pagination params
+  page: z.number().int().min(1).optional(),
+  pageSize: z.number().int().min(1).max(50).optional(),
 });

@@ -42,6 +42,15 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Call to Action */}
+            <section className="container mx-auto px-4 mb-16">
+                <div className="rounded-lg bg-primary text-primary-foreground p-8 border text-center">
+                    <h2 className="text-2xl font-semibold mb-2">Start sharing your ideas</h2>
+                    <p className="mb-4 opacity-90">Create your first post in seconds with our Markdown editor.</p>
+                    <Link href="#create" className="inline-block bg-white text-primary rounded px-4 py-2">Write a post</Link>
+                </div>
+            </section>
+
             {/* Puraani post list iske neeche dikhegi */}
             <PostList />
 
