@@ -48,7 +48,7 @@ export default function CreatePostForm() {
         defaultValues: {
             title: "",
             content: "",
-            published: false,
+            published: true,
             categoryIds: [],
         },
     });
