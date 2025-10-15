@@ -11,6 +11,13 @@ export default function PostsPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const { data: categories } = trpc.category.list.useQuery();
+  const utils = trpc.useUtils();
+  const deleteMutation = trpc.post.deletePost.useMutation({
+    onSuccess: () => {
+      utils.post.getAllPosts.invalidate();
+      utils.post.getAllPostsPage.invalidate();
+    },
+  });
   const { data, isLoading, error } = trpc.post.getAllPostsPage.useQuery({
     categoryId: selectedCategoryId,
     publishedOnly: true,
@@ -20,7 +27,7 @@ export default function PostsPage() {
   });
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-background py-8">
       <Nav />
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold mb-4">Posts</h1>
@@ -66,10 +73,16 @@ export default function PostsPage() {
         {data && data.items.length === 0 && <div>No posts found.</div>}
         <ul className="space-y-2">
           {data?.items.map((p) => (
-            <li key={p.id} className="p-4 border rounded-md bg-white">
-              <Link href={`/posts/${p.slug}`} className="font-semibold hover:underline">
-                {p.title}
-              </Link>
+            <li key={p.id} className="p-4 border rounded-md bg-card">
+              <div className="flex items-center justify-between gap-3">
+                <Link href={`/posts/${p.slug}`} className="font-semibold hover:underline">
+                  {p.title}
+                </Link>
+                <div className="shrink-0 flex items-center gap-3">
+                  <Link href={`/dashboard/posts/${p.id}`} className="text-sm underline">Edit</Link>
+                  <button className="text-sm text-red-600 underline" onClick={() => deleteMutation.mutate({ id: p.id })}>Delete</button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

@@ -33,7 +33,7 @@ function EditPostForm({ id }: { id: number }) {
 
   if (isLoading || !post) {
     return (
-      <main className="min-h-screen bg-gray-50 py-8">
+      <main className="min-h-screen bg-background py-8">
         <Nav />
         <div className="container mx-auto px-4">Loading...</div>
       </main>
@@ -44,7 +44,7 @@ function EditPostForm({ id }: { id: number }) {
   form.reset({ id, title: post.title, content: post.content ?? "", published: post.published ?? false, categoryIds: selectedCategoryIds ?? [] });
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-background py-8">
       <Nav />
       <div className="container mx-auto px-4 max-w-3xl">
         <h1 className="text-3xl font-bold mb-4">Edit Post</h1>
