@@ -27,6 +27,7 @@ function EditPostForm({ id }: { id: number }) {
   const updateMutation = trpc.post.updatePost.useMutation({
     onSuccess: () => {
       utils.post.getAllPosts.invalidate();
+      utils.post.getAllPostsPage.invalidate();
     },
   });
 

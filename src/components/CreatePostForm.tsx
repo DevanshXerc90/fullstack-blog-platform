@@ -31,6 +31,7 @@ export default function CreatePostForm() {
             // Jab post safaltaapoorvak ban jaaye:
             // 1. Post list ko refresh karo
             utils.post.getAllPosts.invalidate();
+            utils.post.getAllPostsPage.invalidate();
             // 2. Success ka notification dikhao
             toast.success(`Post "${data.title}" has been created!`);
             // 3. Form ko reset kar do

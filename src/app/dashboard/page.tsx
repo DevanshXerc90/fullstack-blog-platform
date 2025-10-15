@@ -5,7 +5,7 @@ import { Nav } from "@/components/Nav";
 
 export default function DashboardPage() {
   const utils = trpc.useUtils();
-  const { data: posts } = trpc.post.getAllPosts.useQuery({ publishedOnly: false });
+  const { data: pageData } = trpc.post.getAllPostsPage.useQuery({ publishedOnly: false, page: 1, pageSize: 50 });
   const deleteMutation = trpc.post.deletePost.useMutation({
     onSuccess: () => utils.post.getAllPosts.invalidate(),
   });
@@ -26,7 +26,7 @@ export default function DashboardPage() {
             </tr>
           </thead>
           <tbody>
-            {posts?.map((p) => (
+            {pageData?.items.map((p) => (
               <tr key={p.id}>
                 <td className="p-2 border"><Link className="hover:underline" href={`/posts/${p.slug}`}>{p.title}</Link></td>
                 <td className="p-2 border">{p.slug}</td>

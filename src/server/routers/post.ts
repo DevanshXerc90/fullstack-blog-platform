@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { db } from '@/db';
 import { posts, postsToCategories } from '@/db/schema';
-import { and, desc, eq, like } from 'drizzle-orm';
+import { and, desc, eq, like, count, SQL } from 'drizzle-orm';
 import { createPostSchema, getPostBySlugSchema, getPostByIdSchema, listPostsSchema, updatePostSchema } from '@/schemas/post';
 
 
@@ -46,6 +46,81 @@ export const postRouter = router({
             return base.where(like(posts.title, `%${input!.query!}%`)).orderBy(desc(posts.createdAt));
         }
         return base.orderBy(desc(posts.createdAt));
+    }),
+
+    // READ (paginated): Returns items with total count and page info
+    getAllPostsPage: publicProcedure.input(listPostsSchema).query(async ({ input }) => {
+        const page = input.page ?? 1;
+        const pageSize = input.pageSize ?? 10;
+        const offset = (page - 1) * pageSize;
+
+        // Build filters
+        const filters: SQL<unknown>[] = [];
+        if (input.publishedOnly) filters.push(eq(posts.published, true));
+        if (input.query) filters.push(like(posts.title, `%${input.query}%`));
+
+        if (input.categoryId) {
+            const whereExpr = filters.length > 0
+                ? and(eq(postsToCategories.categoryId, input.categoryId), ...filters)
+                : eq(postsToCategories.categoryId, input.categoryId);
+
+            const items = await db
+                .select({
+                    id: posts.id,
+                    title: posts.title,
+                    slug: posts.slug,
+                    content: posts.content,
+                    published: posts.published,
+                    createdAt: posts.createdAt,
+                    updatedAt: posts.updatedAt,
+                })
+                .from(posts)
+                .innerJoin(postsToCategories, eq(postsToCategories.postId, posts.id))
+                .where(whereExpr)
+                .orderBy(desc(posts.createdAt))
+                .limit(pageSize)
+                .offset(offset);
+
+            const [{ value: total } = { value: 0 }] = await db
+                .select({ value: count(posts.id) })
+                .from(posts)
+                .innerJoin(postsToCategories, eq(postsToCategories.postId, posts.id))
+                .where(whereExpr);
+
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            return { items, total, page, pageSize, totalPages, hasMore: page < totalPages } as const;
+        }
+
+        // No category filter
+        if (filters.length > 0) {
+            const whereExpr = and(...filters);
+            const items = await db
+                .select()
+                .from(posts)
+                .where(whereExpr)
+                .orderBy(desc(posts.createdAt))
+                .limit(pageSize)
+                .offset(offset);
+            const [{ value: total } = { value: 0 }] = await db
+                .select({ value: count(posts.id) })
+                .from(posts)
+                .where(whereExpr);
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            return { items, total, page, pageSize, totalPages, hasMore: page < totalPages } as const;
+        }
+        else {
+            const items = await db
+                .select()
+                .from(posts)
+                .orderBy(desc(posts.createdAt))
+                .limit(pageSize)
+                .offset(offset);
+            const [{ value: total } = { value: 0 }] = await db
+                .select({ value: count(posts.id) })
+                .from(posts);
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            return { items, total, page, pageSize, totalPages, hasMore: page < totalPages } as const;
+        }
     }),
 
     // CREATE: Naya post banane ke liye
