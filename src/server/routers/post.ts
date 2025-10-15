@@ -159,13 +159,18 @@ export const postRouter = router({
                 ? updateData.title.toLowerCase().replace(/\s+/g, '-').slice(0, 50)
                 : undefined;
 
+            // Only update slug when title actually changed; avoid setting undefined
+            const values: Record<string, unknown> = {
+                ...updateData,
+                updatedAt: new Date(),
+            };
+            if (newSlug !== undefined) {
+                values.slug = newSlug;
+            }
+
             const [updatedPost] = await db
                 .update(posts)
-                .set({
-                    ...updateData,
-                    slug: newSlug,
-                    updatedAt: new Date(),
-                })
+                .set(values)
                 .where(eq(posts.id, id))
                 .returning();
 

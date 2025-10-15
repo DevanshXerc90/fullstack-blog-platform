@@ -6,6 +6,7 @@ import { z } from "zod";
 import { trpc } from "@/lib/trpc/client";
 import { updatePostSchema } from "@/schemas/post";
 import { Nav } from "@/components/Nav";
+import ImageUploader from "@/components/ImageUploader";
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -61,6 +62,17 @@ function EditPostForm({ id }: { id: number }) {
           <div>
             <label className="block text-sm font-medium">Content (Markdown)</label>
             <textarea rows={8} className="w-full border rounded px-2 py-1" {...form.register("content")} />
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Insert image</div>
+            <ImageUploader
+              onUploaded={(url) => {
+                const existing = form.getValues("content") || "";
+                const next = `${existing}\n\n![](${url})\n`;
+                form.setValue("content", next, { shouldDirty: true });
+              }}
+            />
+            <div className="text-xs text-muted-foreground">Uploads are limited to 5MB.</div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">Categories</label>

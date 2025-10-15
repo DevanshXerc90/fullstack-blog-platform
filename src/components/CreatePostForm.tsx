@@ -20,6 +20,7 @@ import { trpc } from "@/lib/trpc/client";
 import { createPostSchema } from "@/schemas/post";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import ImageUploader from "@/components/ImageUploader";
 
 export default function CreatePostForm() {
     // Yeh tRPC hook post list ko automatically refresh karne mein madad karega
@@ -48,7 +49,7 @@ export default function CreatePostForm() {
         defaultValues: {
             title: "",
             content: "",
-            published: true,
+            published: false,
             categoryIds: [],
         },
     });
@@ -95,6 +96,17 @@ export default function CreatePostForm() {
                             </FormItem>
                         )}
                     />
+                    <div className="space-y-2">
+                        <div className="text-sm font-medium">Insert image</div>
+                        <ImageUploader
+                            onUploaded={(url) => {
+                                const existing = form.getValues("content") || "";
+                                const next = `${existing}\n\n![](${url})\n`;
+                                form.setValue("content", next, { shouldDirty: true });
+                            }}
+                        />
+                        <div className="text-xs text-muted-foreground">Uploads are limited to 5MB.</div>
+                    </div>
                     {contentValue && contentValue.length > 0 && (
                         <div>
                             <div className="text-sm font-medium mb-2">Preview</div>
