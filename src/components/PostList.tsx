@@ -8,7 +8,14 @@ import React from "react";
 export default function PostList() {
     // Humara tRPC hook! Yeh automatically data fetch karta hai.
     const [query, setQuery] = useState("");
-    const { data: posts, isLoading, error } = trpc.post.getAllPosts.useQuery({ publishedOnly: true, query });
+    const utils = trpc.useUtils();
+    const deleteMutation = trpc.post.deletePost.useMutation({
+        onSuccess: () => {
+            utils.post.getAllPosts.invalidate();
+            utils.post.getAllPostsPage.invalidate();
+        },
+    });
+    const { data: posts, isLoading, error } = trpc.post.getAllPosts.useQuery({ publishedOnly: true, query: query || undefined });
 
     // Loading state handle karein
     if (isLoading) {
@@ -39,13 +46,24 @@ export default function PostList() {
             {posts && posts.length > 0 ? (
                 <ul className="space-y-2">
                     {posts.map((post) => (
-                        <li key={post.id} className="p-4 border rounded-md shadow-sm">
+                        <li key={post.id} className="p-4 border rounded-md shadow-sm bg-card">
                             <h2 className="text-xl font-semibold">
                                 <Link href={`/posts/${post.slug}`} className="hover:underline">
                                     {post.title}
                                 </Link>
                             </h2>
-                            <p className="text-gray-600 mt-2">{post.content}</p>
+                            <p className="text-muted-foreground mt-2">{post.content}</p>
+                            <div className="mt-3 flex items-center gap-3">
+                                <Link href={`/dashboard/posts/${post.id}`} className="text-sm underline">
+                                    Edit
+                                </Link>
+                                <button
+                                    className="text-sm text-red-600 underline"
+                                    onClick={() => deleteMutation.mutate({ id: post.id })}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>

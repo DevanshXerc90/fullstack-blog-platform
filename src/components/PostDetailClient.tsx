@@ -16,7 +16,7 @@ export function PostDetailClient({ slug }: { slug: string }) {
   const readingTimeMinutes = Math.max(1, Math.round(wordCount / 200));
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         <h1 className="text-4xl font-bold mb-2">{post.title}</h1>
         <div className="mb-6 text-sm text-muted-foreground">

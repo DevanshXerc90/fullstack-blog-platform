@@ -60,7 +60,7 @@ export default function CreatePostForm() {
 
     const contentValue = form.watch("content");
     return (
-        <div className="container max-w-xl mx-auto p-4 bg-white border rounded-md shadow-sm mb-8">
+        <div className="container max-w-xl mx-auto p-4 bg-card border rounded-md shadow-sm mb-8">
             <h2 className="text-2xl font-bold mb-4">Create a New Post</h2>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

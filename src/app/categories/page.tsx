@@ -62,7 +62,7 @@ export default function CategoriesPage() {
   const [description, setDescription] = useState("");
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-background py-8">
       <Nav />
       <div className="container mx-auto px-4 max-w-3xl">
         <h1 className="text-3xl font-bold mb-4">Categories</h1>
@@ -97,7 +97,7 @@ export default function CategoriesPage() {
         {error && <div className="text-red-500">{error.message}</div>}
         <ul className="space-y-2">
           {categories?.map((c) => (
-            <li key={c.id} className="p-3 border rounded bg-white flex items-center justify-between gap-2">
+            <li key={c.id} className="p-3 border rounded bg-card flex items-center justify-between gap-2">
               <div>
                 <div className="font-medium">{c.name}</div>
                 {c.description && <div className="text-sm text-muted-foreground">{c.description}</div>}

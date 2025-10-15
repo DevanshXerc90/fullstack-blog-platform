@@ -11,12 +11,12 @@ export default function DashboardPage() {
   });
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-background py-8">
       <Nav />
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
         <Link className="inline-block mb-4 underline" href="/">Create new post</Link>
-        <table className="w-full text-sm border bg-white">
+        <table className="w-full text-sm border bg-card">
           <thead className="bg-secondary">
             <tr>
               <th className="text-left p-2 border">Title</th>
