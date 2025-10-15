@@ -8,7 +8,7 @@ export function PostDetailClient({ slug }: { slug: string }) {
   const { data: post, isLoading, error } = trpc.post.getBySlug.useQuery({ slug });
   if (isLoading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">{error.message}</div>;
-  if (!post) return notFound();
+  if (!post || !post.published) return notFound();
 
   const plainText = (post.content ?? '').replace(/[#*_`>\-]/g, ' ');
   const words = plainText.trim().split(/\s+/).filter(Boolean);

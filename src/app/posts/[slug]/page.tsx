@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // Server-side fetching via tRPC caller
   const caller = appRouter.createCaller({});
   const post = await caller.post.getBySlug({ slug });
-  if (!post) return { title: 'Post not found' };
+  if (!post || !post.published) return { title: 'Post not found' };
   const description = post.content ? post.content.replace(/[#*_`>\-]/g, '').slice(0, 160) : undefined;
   return {
     title: post.title,
