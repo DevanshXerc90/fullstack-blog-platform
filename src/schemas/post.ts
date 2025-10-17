@@ -2,8 +2,8 @@ import { z } from "zod";
 
 // Naye post ke liye validation schema
 export const createPostSchema = z.object({
-  title: z.string().min(3, "Title kam se kam 3 characters ka hona chahiye"),
-  content: z.string().min(10, "Content kam se kam 10 characters ka hona chahiye"),
+  title: z.string().min(3, "title should be minimum 3 characters long"),
+  content: z.string().min(10, "content should be minimum 10 characters long"),
   published: z.boolean().optional(),
   categoryIds: z.array(z.number()).optional(),
 });
